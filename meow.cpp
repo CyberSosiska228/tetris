@@ -117,7 +117,28 @@ struct screen {
         return "-1";
     }
 
-    void draw(figure fg, int score, int level) {
+    void draw_next_fg(figure nxt, int l, int it) {
+        if (l == 0 && it == str_h / 2) {
+            for (int i = 0; i < str_w; i++) {
+                std::cout << " ";
+            }
+            std::cout << "Next:";
+        } else if (l >= 1 && l <= nxt.sq_sz) {
+            for (int i = 0; i < str_w; i++) {
+                std::cout << " ";
+            }
+            for (int i = 0; i < nxt.sq_sz; i++) {
+                std::cout << get_color(nxt.scr[0][l - 1][i]);
+                for (int j = 0; j < str_w; j++) {
+                    std::cout << " ";
+                }
+                std::cout << DEFAULT;
+            }
+        }
+        std::cout << '\n';
+    }
+
+    void draw(figure fg, int score, int level, figure nxt) {
         for (int i = 1; i < h - 1; i++) {
             for (int f = 0; f < str_h; f++) {
                 for (int j = 1; j < w - 1; j++) {
@@ -132,7 +153,8 @@ struct screen {
                     }
                     std::cout << DEFAULT;
                 }
-                std::cout << '|' << '\n';
+                std::cout << '|';
+                draw_next_fg(nxt, i - 1, f);
             }
         }
         for (int i = 1; i < w - 1; i++) {
@@ -271,9 +293,11 @@ void play(screen scr, int buf_input_sz, int *buf_input, int fig_num, figure *fig
     int cnt_lns = 0;
     int score = 0;
 
+    figure fg = figures[gen() % fig_num];
+    figure next_fg;
     int read_pos = 0;
     while (true) {
-        figure fg = figures[gen() % fig_num];
+        next_fg = figures[gen() % fig_num];
         while (true) {
             if (scr.stop(fg)) {
                 return;
@@ -288,10 +312,10 @@ void play(screen scr, int buf_input_sz, int *buf_input, int fig_num, figure *fig
             }
 
             system("clear");
-            scr.draw(fg, score, level);
+            scr.draw(fg, score, level, next_fg);
             std::this_thread::sleep_for(std::chrono::milliseconds(1000 / FPS));
 
-            if (++frames < FPS / (level * TM_SP)) {
+            if (++frames < FPS / (level + TM_SP)) {
                 continue;
             }
 
@@ -319,13 +343,14 @@ void play(screen scr, int buf_input_sz, int *buf_input, int fig_num, figure *fig
             }
             fg.ps.x++;
         }
+        fg = next_fg;
     }
 }
 
 int main() {
-    const int FPS = 10;
+    const int FPS = 100;
     const int NXT_LVL = 10;
-    const int TM_SP = 3;
+    const int TM_SP = 1;
     const int w = 10 + 2;
     const int h = 20 + 2;
     const int str_w = 5;
