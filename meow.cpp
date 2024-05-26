@@ -18,7 +18,7 @@ void read_input(const int buf_input_sz, int *buf_input) {
     const int max_input = 500;
     const int rd_sz = 1024;
     char buf[rd_sz];
-    int fd = open("/dev/input/event22", O_RDONLY);
+    int fd = open("/dev/input/event11", O_RDONLY);
     assert(fd != -1);
 
     int *disable = (int *) std::malloc(sizeof(int) * max_input);
@@ -272,15 +272,13 @@ void play(screen scr, int buf_input_sz, int *buf_input, int fig_num, figure *fig
     int score = 0;
 
     int read_pos = 0;
-    figure fg = figures[gen() % fig_num];
-    figure nxt = figures[gen() % fig_num];
-
     while (true) {
-            nxt = figures[gen() % fig_num];
+        figure fg = figures[gen() % fig_num];
         while (true) {
             if (scr.stop(fg)) {
                 return;
             }
+
             while (read_pos != buf_input[0]) {
                 inp_prc(scr, fg, buf_input[read_pos]);
                 read_pos++;
@@ -293,7 +291,7 @@ void play(screen scr, int buf_input_sz, int *buf_input, int fig_num, figure *fig
             scr.draw(fg, score, level);
             std::this_thread::sleep_for(std::chrono::milliseconds(1000 / FPS));
 
-            if (++frames < FPS / (level + TM_SP)) {
+            if (++frames < FPS / (level * TM_SP)) {
                 continue;
             }
 
@@ -302,7 +300,7 @@ void play(screen scr, int buf_input_sz, int *buf_input, int fig_num, figure *fig
                 scr.add(fg);
                 frames = 0;
                 int rm_lines = scr.rm_ln();
-                cnt_lns += rm_lines;
+                cnt_lns += rm_lines != 0;
                 if (rm_lines == 1) {
                     score += 40 * level;
                 } else if (rm_lines == 2) {
@@ -325,7 +323,7 @@ void play(screen scr, int buf_input_sz, int *buf_input, int fig_num, figure *fig
 }
 
 int main() {
-    const int FPS = 300;
+    const int FPS = 10;
     const int NXT_LVL = 10;
     const int TM_SP = 3;
     const int w = 10 + 2;
