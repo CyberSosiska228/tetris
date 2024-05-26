@@ -254,23 +254,7 @@ struct screen {
 };
 
 
-void pause(int *buf_input, int buf_input_sz, int &read_pos) {
-    while (true) {
-        while (read_pos != buf_input[0]) {
-            if (read_pos == buf_input_sz) {
-                read_pos = 1;
-            }
-            if (buf_input[read_pos++] == 1) {
-                return;
-            }
-        }
-    }
-}
-
-
-void inp_prc(int *buf_input, int buf_input_sz, int &read_pos, screen scr, figure &fg) {
-    int input = buf_input[read_pos];
-    read_pos++;
+void inp_prc(screen scr, figure &fg, int input) {
     if (input == 105) {
         if (!scr.collision(fg, 0, -1)) {
             fg.ps.y--;
@@ -300,10 +284,6 @@ void inp_prc(int *buf_input, int buf_input_sz, int &read_pos, screen scr, figure
             fg.ps.x++;
         }
     }
-    if (input == 1) {
-        std::cout << "Pause!\n";
-        pause(buf_input, buf_input_sz, read_pos);
-    }
 }
 
 
@@ -324,10 +304,11 @@ void play(screen scr, int buf_input_sz, int *buf_input, int fig_num, figure *fig
             }
 
             while (read_pos != buf_input[0]) {
+                inp_prc(scr, fg, buf_input[read_pos]);
+                read_pos++;
                 if (read_pos == buf_input_sz) {
                     read_pos = 1;
                 }
-                inp_prc(buf_input, buf_input_sz, read_pos, scr, fg);
             }
 
             system("clear");
