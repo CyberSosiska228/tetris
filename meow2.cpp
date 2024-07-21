@@ -18,7 +18,7 @@ void read_input(const int buf_input_sz, int *buf_input) {
     const int max_input = 500;
     const int rd_sz = 1024;
     char buf[rd_sz];
-    int fd = open("/dev/input/event11", O_RDONLY);
+    int fd = open("/dev/input/event2", O_RDONLY);
     assert(fd != -1);
 
     int *disable = (int *) std::malloc(sizeof(int) * max_input);
@@ -358,7 +358,7 @@ int main() {
     const int fig_num = 7;
     const int buf_input_sz = 100;
 
-int *buf_input = (int *) std::malloc(sizeof(int) * buf_input_sz);
+    int *buf_input = (int *) std::malloc(sizeof(int) * buf_input_sz);
     std::thread read(read_input, buf_input_sz, buf_input);
 
     figure *figures = (figure *) std::malloc(sizeof(figure) * fig_num);
